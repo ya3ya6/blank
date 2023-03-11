@@ -2,6 +2,7 @@
 <script id="blank_script">
   // add setInnerHTML to support js script executable replacer
   HTMLElement.prototype.setInnerHTML = function(html){
+    this.innerHTML = html;
     nodeScriptReplace(this);
   }
   // replace script tags with executables

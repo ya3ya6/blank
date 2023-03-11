@@ -1,0 +1,14 @@
+<script id="utils_script" src="utils.js"></script>
+<script id="blank_script">
+  // add setInnerHTML to support js script executable replacer
+  HTMLElement.prototype.setInnerHTML = function(html){
+    nodeScriptReplace(this);
+  }
+  // replace script tags with executables
+  window.scripts = function(){
+    nodeScriptReplace(document.documentElement);
+  }
+  // remove utils_script tag and blank_script tag
+  document.querySelector('script#blank_script').remove();
+  document.querySelector('script#utils_script').remove();
+</script>

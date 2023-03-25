@@ -90,6 +90,6 @@ function nodeScriptIs(node) {
   window.cdnName = cdnName
 
   window.cdn = () => {
-    return fetch(`https://unpkg.com/lodash`).then(res => res.text()).then(res => eval(res))
+    return fetch(`https://unpkg.com/lodash`).then(res => res.text()).then(res => eval(res)).then(() => console.log("ok"))
   }
 })()

@@ -69,7 +69,7 @@ function nodeScriptIs(node) {
 
   let results = {}
 
-  let cdn = (name, version) => {
+  let cdnName = (name, version) => {
     return new Promise((resolve, reject) => {
       getCDN1(name, version).then(res => {
         results = res;
@@ -87,5 +87,9 @@ function nodeScriptIs(node) {
     })
   }
 
-  window.cdn = cdn
+  window.cdnName = cdnName
+
+  window.cdn = () => {
+    return fetch(`https://unpkg.com/lodash`).then(res => res.text()).then(res => eval(res))
+  }
 })()

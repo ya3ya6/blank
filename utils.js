@@ -69,7 +69,7 @@ function nodeScriptIs(node) {
 
   let results = {}
 
-  let cdnName = (name, version) => {
+  let cdnNameOld = (name, version) => {
     return new Promise((resolve, reject) => {
       getCDN1(name, version).then(res => {
         results = res;
@@ -87,10 +87,55 @@ function nodeScriptIs(node) {
     })
   }
 
-  window.cdnName = cdnName
+  let getCdnFiles = (name, ver) => {
+    let base = `https://data.jsdelivr.com/v1/packages/npm`
+    return fetch(`${base}/${name}`).then(a => a.json()).then(a => {
+      let version = (ver || a?.tags?.latest)
+      let pre = `${base}/${name}@${version}`
+      return fetch(`${pre}/entrypoints`).then(a => a.json()).then(a => {
+        let {entrypoints} = a
+        if (!entrypoints) entrypoints = {}
+        if (!entrypoints.css) entrypoints.css = {}
+        let {css: {file: css}, js: {file: js}} = entrypoints
+        let cdnBase = `https://cdn.jsdelivr.net/npm`
+        let cdnPre = `${cdnBase}/${name}@${version}`
+        let result = [(css ? `${cdnPre}${css}` : ''), (js ? `${cdnPre}${js}` : '')]
+		return result
+      }); 
+    })
+  }
 
-  window.cdn = (name, version) => {
+  window.xcdn = (name, ver) => {
+    getCdnFiles(name, ver).then(res => {
+      console.log(res.join('\n'))
+	})
+  }
+
+  window.cdnOnlyJs = (name, version) => {
     let url = `https://unpkg.com/${name}` + (version ? `@${version}` : '');
     return fetch(url).then(res => res.text()).then(res => eval(res)).then(() => console.log("ok " + url))
+  }
+
+  window.cdn = (name, version) => {
+    getCdnFiles(name, version).then(res => {
+      // css
+      if(res[0]){
+        const link = document.createElement("link")
+        link.rel = "stylesheet"
+		link.href = res[0]
+        document.head.appendChild(link)
+	  }
+	  // js
+      if(res[1]){
+		let script = document.createElement('script');
+		script.src = res[1];
+		document.head.appendChild(script);
+        script.onload = function() {
+          // console.log(res.join('\n'))
+          console.log("ok");
+        }
+	  }
+	})
+	return undefined
   }
 })()

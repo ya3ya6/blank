@@ -105,37 +105,50 @@ function nodeScriptIs(node) {
     })
   }
 
-  window.xcdn = (name, ver) => {
-    getCdnFiles(name, ver).then(res => {
-      console.log(res.join('\n'))
-	})
-  }
-
   window.cdnOnlyJs = (name, version) => {
     let url = `https://unpkg.com/${name}` + (version ? `@${version}` : '');
     return fetch(url).then(res => res.text()).then(res => eval(res)).then(() => console.log("ok " + url))
   }
 
-  window.cdn = (name, version) => {
-    getCdnFiles(name, version).then(res => {
-      // css
-      if(res[0]){
-        const link = document.createElement("link")
-        link.rel = "stylesheet"
+  let cdnRun = (res) => {
+	// css
+	if(res[0]){
+		const link = document.createElement("link")
+		link.rel = "stylesheet"
 		link.href = res[0]
-        document.head.appendChild(link)
-	  }
-	  // js
-      if(res[1]){
+		document.head.appendChild(link)
+	}
+	// js
+	if(res[1]){
 		let script = document.createElement('script');
 		script.src = res[1];
 		document.head.appendChild(script);
-        script.onload = function() {
-          // console.log(res.join('\n'))
-          console.log("ok");
-        }
-	  }
+		script.onload = function() {
+		  // console.log(res.join('\n'))
+		  // console.log("ok");
+		}
+	}
+	return undefined
+  }
+
+  window.cdn = (name, ver) => {
+    getCdnFiles(name, ver).then(res => {
+      let style = res[0]
+      let script = res[1]
+	  let s = []
+	  if(style) s.push(`<link rel="stylesheet" href="${style}">`)
+	  if(script) s.push(`<script src="${script}"></script>`)
+	  console.log(s.join('\n'))
+      cdnRun(res)
 	})
 	return undefined
   }
+
+  /*window.cdnRun = (name, ver) => {
+    getCdnFiles(name, ver).then(res => {
+	  cdnRun(res)
+	})
+	return undefined
+  }*/
+
 })()
